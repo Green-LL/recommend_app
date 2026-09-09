@@ -19,8 +19,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-jm0axoox)f-w#1qb&15gl-v@#t79e1z_+c5rn)i-&g8isf@wv2'
+# 環境変数から取得（RenderではRenderの値、ローカルでは.envの値が読み込まれます）
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-local-dev-key-12345')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
@@ -28,7 +28,13 @@ SECRET_KEY = 'django-insecure-jm0axoox)f-w#1qb&15gl-v@#t79e1z_+c5rn)i-&g8isf@wv2
 DEBUG = False
 
 # 2. ALLOWED_HOSTS に Render のドメインを許可する
-ALLOWED_HOSTS = ['*']
+# settings.py
+
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    os.environ.get('RENDER_EXTERNAL_HOSTNAME', '')  
+    ]
 
 # 3. 静的ファイル（CSS等）の設定（末尾などに追加）
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
