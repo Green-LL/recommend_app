@@ -120,6 +120,8 @@
         <br>
         <form method="post">
             {% csrf_token %}
+            <!-- 識別用の隠しタグ（これがないと診断処理と誤認されます） -->
+            <input type="hidden" name="action" value="feedback">
             <div style="margin-bottom: 15px;">
                 <label style="display: block; font-weight: bold;">種別</label>
                 {{ form.media_type }}

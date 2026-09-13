@@ -2,57 +2,53 @@
 import random
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.db.models import Q
 from .models import Item, Feedback
 from .forms import FeedbackForm
 
 def recommend_view(request):
     # --------------------------------------------------
-    # 1. 診断ボタンからのAjax (POST) リクエスト処理
+    # POSTリクエスト（コメント投稿 または 診断ボタン）
     # --------------------------------------------------
     if request.method == "POST":
-        # もしフォーム（コメント投稿）からの送信だった場合
-        if "media_type" in request.POST and "title" in request.POST:
+        
+        # A. コメント投稿フォームからの送信の場合
+        if "action" in request.POST and request.POST.get("action") == "feedback":
             form = FeedbackForm(request.POST)
             if form.is_valid():
                 form.save()
-                return redirect('recommend')  # ご自身のurls.pyのnameに合わせて変更（例: 'recommend_view' など）
-        
-        # 診断（おすすめ選出）処理
+            return redirect('recommend_view')  # ご自身のurls.pyのnameに合わせてください
+
+        # B. 診断ボタン（JavaScript/Ajax）からの送信の場合
         media_type = request.POST.get("media_type", "movie")
         mood = request.POST.get("mood", "")
         goal = request.POST.get("goal", "")
 
-        # メディアタイプでフィルタリング
         items = Item.objects.filter(media_type=media_type)
 
-        # 選択された「気分」や「目的」のタグが含まれる作品を検索
         if mood:
             items = items.filter(tags__contains=mood)
         if goal:
             items = items.filter(tags__contains=goal)
 
-        # 条件に合う作品がない場合はフォールバック
         if not items.exists():
             items = Item.objects.filter(media_type=media_type)
 
-        # ランダムで1件選出
         if items.exists():
             item = random.choice(list(items))
             return JsonResponse({
                 "status": "success",
                 "title": item.title,
                 "reason": item.reason,
-                "image_url": item.image_url,
+                "image_url": item.image_url if hasattr(item, 'image_url') else '',
             })
         else:
             return JsonResponse({
                 "status": "error",
-                "error": "作品がまだ登録されていません。管理画面から登録してください。"
+                "error": "作品がまだ登録されていません。"
             }, status=404)
 
     # --------------------------------------------------
-    # 2. 最初（GETアクセス）でページを開いたときの処理
+    # GETリクエスト（最初のページ表示時）
     # --------------------------------------------------
     form = FeedbackForm()
     feedbacks = Feedback.objects.all()
