@@ -138,3 +138,14 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+
+# 静的ファイルのURLと配置場所
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Whitenoiseを使用するためのミドルウェア追加（CSS配信を効率化）
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # SecurityMiddlewareの直下に追加
+    # ... 他のミドルウェア ...
+]
